@@ -42,9 +42,9 @@
     font-family:"PingFang SC","HarmonyOS Sans SC","Hiragino Sans GB","Microsoft YaHei",system-ui,-apple-system,sans-serif;
     color:#fff;
     background:
-      radial-gradient(110% 70% at 50% 112%, rgba(255,90,160,.30), rgba(255,90,160,0) 62%),
-      radial-gradient(85% 55% at 50% 0%,  rgba(172,112,255,.20), rgba(172,112,255,0) 70%),
-      radial-gradient(150% 130% at 50% 45%, #200c27 0%, #0c0512 56%, #050208 100%);
+      radial-gradient(110% 70% at 50% 112%, rgba(255,172,84,.30), rgba(255,172,84,0) 62%),
+      radial-gradient(85% 55% at 50% 0%,  rgba(255,120,66,.16), rgba(255,120,66,0) 70%),
+      radial-gradient(150% 130% at 50% 45%, #241407 0%, #120904 56%, #070302 100%);
     -webkit-user-select:none; user-select:none;
     -webkit-tap-highlight-color:transparent;
     touch-action:none;
@@ -85,14 +85,14 @@
   .eyebrow{
     display:flex; align-items:center; justify-content:center; gap:11px;
     font-size:10px; font-weight:500; letter-spacing:.40em; text-indent:.40em;
-    color:rgba(255,205,232,.72);
+    color:rgba(255,226,182,.78);
   }
   .eyebrow i{
     display:block; width:24px; height:1px;
-    background:linear-gradient(90deg, rgba(255,160,210,0), rgba(255,170,215,.75));
+    background:linear-gradient(90deg, rgba(255,200,120,0), rgba(255,208,142,.80));
   }
   .eyebrow i:last-child{
-    background:linear-gradient(90deg, rgba(255,170,215,.75), rgba(255,160,210,0));
+    background:linear-gradient(90deg, rgba(255,208,142,.80), rgba(255,200,120,0));
   }
 
   .title{
@@ -102,25 +102,35 @@
     font-weight:800;
     line-height:1.12;
     letter-spacing:.13em; text-indent:.13em;
-    color:#ffeff8;
+    color:#fff6e6;
     text-shadow:
-      0 0 10px rgba(255,120,190,.50),
-      0 0 34px rgba(255,70,150,.30),
-      0 0 74px rgba(255,60,140,.16);
+      0 0 10px rgba(255,214,150,.55),
+      0 0 34px rgba(255,172,70,.32),
+      0 0 74px rgba(214,132,36,.18);
   }
+  .title .name{
+    display:block;
+    font-size:.44em;
+    font-weight:600;
+    letter-spacing:.36em; text-indent:.36em;
+    color:#ffe3b0;
+    margin-bottom:.06em;
+    text-shadow:0 0 12px rgba(255,190,110,.50), 0 0 30px rgba(255,160,70,.28);
+  }
+  .title .greet{ display:block; }
 
   .sub{
     margin-top:11px;
     font-size:13px; font-weight:300;
     letter-spacing:.17em; text-indent:.17em;
-    color:rgba(255,214,236,.76);
+    color:rgba(255,232,198,.80);
   }
 
   .foot{ opacity:0; animation:rise 1.2s 1.15s cubic-bezier(.2,.8,.25,1) forwards; }
 
   .hint{
     font-size:12.5px; letter-spacing:.22em; text-indent:.22em;
-    color:rgba(255,228,242,.88);
+    color:rgba(255,236,206,.90);
     animation:breathe 2.8s ease-in-out infinite;
     transition:opacity .7s ease;
   }
@@ -129,7 +139,7 @@
   .sign{
     margin-top:11px;
     font-size:9.5px; letter-spacing:.32em; text-indent:.32em;
-    color:rgba(255,188,220,.42);
+    color:rgba(255,214,160,.45);
   }
 
   /* ---------- 声音按钮 ---------- */
@@ -139,10 +149,10 @@
     bottom:calc(env(safe-area-inset-bottom, 0px) + 16px);
     width:42px; height:42px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
-    border:1px solid rgba(255,182,220,.26);
-    background:rgba(255,150,200,.07);
+    border:1px solid rgba(255,214,160,.28);
+    background:rgba(255,190,110,.08);
     -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
-    color:rgba(255,228,242,.9);
+    color:rgba(255,238,206,.92);
     font-size:17px; line-height:1; font-family:Georgia,"Times New Roman",serif;
     cursor:pointer; outline:none;
     transition:transform .18s ease, opacity .3s ease;
@@ -153,7 +163,7 @@
   .sound.off span{ opacity:.32; }
   .sound.off::after{
     content:""; position:absolute; width:23px; height:1px;
-    background:rgba(255,205,228,.75); transform:rotate(-45deg);
+    background:rgba(255,222,170,.75); transform:rotate(-45deg);
   }
 
   @keyframes rise{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:translateY(0); } }
@@ -188,7 +198,7 @@
 <div class="ui">
   <header class="head">
     <p class="eyebrow"><i></i>MERRY CHRISTMAS<i></i></p>
-    <h1 class="title">圣诞快乐</h1>
+    <h1 class="title"><span class="name">陈鹤</span><span class="greet">圣诞节快乐</span></h1>
     <p class="sub">愿所有美好，都如约而至</p>
   </header>
 
@@ -207,7 +217,7 @@
   'use strict';
 
   /* ================= 参数区 ================= */
-  var SPEED      = 0.33;   // 树旋转速度（弧度/秒）
+  var SPEED      = 0.24;   // 树旋转速度（弧度/秒）
   var CAM        = 2.6;    // 透视相机距离
   var INTRO_SEC  = 2.4;    // 开场粒子汇聚时长
   var BPM        = 100;    // 音乐速度
@@ -229,12 +239,12 @@
 
   /* ================= 颜色 & 光斑贴图 ================= */
   var COLORS = [
-    [255,  58, 138],  // 0 玫红（树底）
-    [255, 104, 174],  // 1 粉
-    [255, 152, 206],  // 2 浅粉
-    [255, 202, 232],  // 3 樱粉白
-    [198, 128, 255],  // 4 淡紫点缀
-    [255, 244, 252]   // 5 近白（高光）
+    [198, 134,  50],  // 0 深琥珀（树底）
+    [228, 168,  76],  // 1 槟榔金
+    [246, 200, 122],  // 2 浅金
+    [255, 230, 184],  // 3 香槟白
+    [255, 132,  96],  // 4 铜红点缀
+    [255, 250, 238]   // 5 暖白（高光）
   ];
 
   function makeSprite(rgb) {
@@ -287,10 +297,10 @@
 
   function buildTree() {
     pts = [];
-    var baseR = 0.355;
+    var baseR = 0.365;
 
     // ① 一层层下垂的枝条：每层挑几个方向，沿半径铺一串光点
-    var TIERS = 10;
+    var TIERS = 11;
     for (var j = 0; j < TIERS; j++) {
       var t = 0.07 + (j / (TIERS - 1)) * 0.89;        // 0.07 顶 → 0.96 底
       var tierY = 1 - t;
@@ -313,7 +323,7 @@
     }
 
     // ② 缠绕的灯带（螺旋），带流光
-    var STRANDS = 5, PER = 54;
+    var STRANDS = 6, PER = 56;
     for (var s = 0; s < STRANDS; s++) {
       for (var k2 = 0; k2 < PER; k2++) {
         var t2 = k2 / (PER - 1);                      // 0 顶 → 1 底
@@ -330,7 +340,7 @@
     }
 
     // ③ 树身细碎的针叶光点，填补体积
-    for (var i = 0; i < 230; i++) {
+    for (var i = 0; i < 285; i++) {
       var t3 = Math.pow(Math.random(), 0.7);
       var y3 = 1 - t3 * 0.985;
       var rr3 = baseR * Math.pow(t3, 0.88);
@@ -343,7 +353,7 @@
     }
 
     // ④ 大颗的“挂饰”灯泡
-    for (var m = 0; m < 26; m++) {
+    for (var m = 0; m < 34; m++) {
       var t4 = rand(0.06, 0.94);
       var y4 = 1 - t4;
       var rr4 = baseR * Math.pow(t4, 0.88) * 0.99;
@@ -416,6 +426,9 @@
     } else if (W > H * 1.15) {          // 横屏：给文字留出上方空间
       scale = Math.min(H * 0.52, W * 0.5);
       baseY = H * 0.87;
+    } else if (H < 720) {               // 矮屏：树小一点，别顶到标题
+      scale = Math.min(H * 0.50, W * 1.00);
+      baseY = H * 0.875;
     } else {
       scale = Math.min(H * 0.58, W * 1.05);
       baseY = H * 0.855;
@@ -454,9 +467,9 @@
     var y = baseY - scale * 0.46;
     var r = scale * 0.8;
     var g = ctx.createRadialGradient(cx, y, 0, cx, y, r);
-    g.addColorStop(0, 'rgba(255,120,190,.16)');
-    g.addColorStop(0.5, 'rgba(220,120,255,.07)');
-    g.addColorStop(1, 'rgba(200,100,255,0)');
+    g.addColorStop(0, 'rgba(255,172,92,.16)');
+    g.addColorStop(0.5, 'rgba(255,140,70,.07)');
+    g.addColorStop(1, 'rgba(255,120,52,0)');
     ctx.fillStyle = g;
     ctx.fillRect(cx - r, y - r, r * 2, r * 2);
   }
@@ -465,9 +478,9 @@
     var gy = baseY + 8;
     var r = scale * 0.62;
     var g = ctx.createRadialGradient(cx, gy, 0, cx, gy, r);
-    g.addColorStop(0, 'rgba(255,120,190,.30)');
-    g.addColorStop(0.42, 'rgba(255,80,170,.11)');
-    g.addColorStop(1, 'rgba(255,80,170,0)');
+    g.addColorStop(0, 'rgba(255,182,94,.32)');
+    g.addColorStop(0.42, 'rgba(255,152,72,.12)');
+    g.addColorStop(1, 'rgba(255,140,60,0)');
 
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
@@ -542,16 +555,16 @@
 
     var x = cx;
     var y = baseY - 1.045 * scale + Math.sin(tGlobal * 0.8) * 2.4;
-    var size = scale * 0.046 * (1 + 0.05 * Math.sin(tGlobal * 2.3));
+    var size = scale * 0.053 * (1 + 0.05 * Math.sin(tGlobal * 2.3));
 
     ctx.globalCompositeOperation = 'lighter';
 
     // 光晕
     var g = ctx.createRadialGradient(x, y, 0, x, y, size * 5.4);
-    g.addColorStop(0, 'rgba(255,240,250,.55)');
-    g.addColorStop(0.22, 'rgba(255,155,212,.26)');
-    g.addColorStop(0.58, 'rgba(255,110,190,.08)');
-    g.addColorStop(1, 'rgba(255,110,190,0)');
+    g.addColorStop(0, 'rgba(255,244,222,.55)');
+    g.addColorStop(0.22, 'rgba(255,198,124,.28)');
+    g.addColorStop(0.58, 'rgba(255,162,72,.09)');
+    g.addColorStop(1, 'rgba(255,162,72,0)');
     ctx.globalAlpha = a;
     ctx.fillStyle = g;
     ctx.beginPath();
@@ -587,11 +600,11 @@
     ctx.closePath();
     var sg = ctx.createLinearGradient(0, -size, 0, size);
     sg.addColorStop(0, 'rgba(255,255,255,1)');
-    sg.addColorStop(0.5, 'rgba(255,224,242,1)');
-    sg.addColorStop(1, 'rgba(255,150,206,1)');
+    sg.addColorStop(0.5, 'rgba(255,240,208,1)');
+    sg.addColorStop(1, 'rgba(255,188,98,1)');
     ctx.globalAlpha = a;
     ctx.fillStyle = sg;
-    ctx.shadowColor = 'rgba(255,140,205,.9)';
+    ctx.shadowColor = 'rgba(255,192,112,.9)';
     ctx.shadowBlur = size * 1.3;
     ctx.fill();
     ctx.restore();
@@ -661,7 +674,7 @@
       if (r.life <= 0) { rings.splice(j, 1); continue; }
       var k2 = 1 - r.life / r.max;
       ctx.globalAlpha = (1 - k2) * 0.45;
-      ctx.strokeStyle = 'rgba(255,190,226,1)';
+      ctx.strokeStyle = 'rgba(255,226,176,1)';
       ctx.lineWidth = 1.4;
       ctx.beginPath();
       ctx.arc(r.x, r.y, 8 + k2 * 92, 0, TAU);
