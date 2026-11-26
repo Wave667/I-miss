@@ -230,7 +230,7 @@
     bg: 'auto',                // auto | manual
     b1: '#241407',             // 手动：底色
     b2: '#ffb45a',             // 手动：光晕色
-    n: '陈鹤',                 // 收件人
+    n: '',                    // 收件人（留空则不显示）
     t: '圣诞节快乐',           // 主标题
     s: '愿所有美好，都如约而至', // 副标题
     g: '2026 · CHRISTMAS',     // 落款
@@ -418,16 +418,18 @@
 
   /* ================= 花哨程度 ================= */
   var F = CFG.f;
-  var TIERS    = 9 + F;
-  var STRANDS  = 5 + Math.round(F / 2);
-  var PER      = 48 + F * 4;
-  var FILL     = 185 + F * 50;
-  var BAUBLES  = 24 + F * 5;
-  var SPEED    = Math.max(0.16, 0.30 - F * 0.03);
+  var TIERS    = [8, 9, 11, 12, 14][F];
+  var STRANDS  = [3, 4, 6, 7, 9][F];
+  var PER      = [30, 42, 56, 68, 78][F];
+  var FILL     = [70, 150, 285, 430, 560][F];
+  var BAUBLES  = [10, 20, 34, 48, 62][F];
+  var SPEED    = [0.34, 0.29, 0.24, 0.20, 0.16][F];
   var WAVE     = F >= 2;
-  var SNOWK    = 0.6 + F * 0.2;
-  var GLOWK    = 0.95 + F * 0.03;
-  var STARF    = 0.044 + F * 0.0035;
+  var SNOWK    = [0.25, 0.55, 1.00, 1.50, 2.00][F];
+  var GLOWK    = [0.78, 0.90, 1.00, 1.12, 1.26][F];
+  var STARF    = [0.040, 0.047, 0.053, 0.060, 0.067][F];
+  var MOTES    = [0, 4, 12, 22, 32][F];
+  var GLINT    = [0, 0, 0.28, 0.36, 0.46][F];
 
   function makeSprite(rgb) {
     var size = 64;
@@ -540,7 +542,7 @@
       var ang4 = rand(0, TAU);
       addPoint(
         Math.cos(ang4) * rr4, y4 - 0.02, Math.sin(ang4) * rr4,
-        { s: rand(4, 6.4), c: Math.random() < 0.45 ? 3 : 5, a: 1, b: true, tw: rand(0.8, 1.7), gl: Math.random() < 0.3 }
+        { s: rand(4, 6.4), c: Math.random() < 0.45 ? 3 : 5, a: 1, b: true, tw: rand(0.8, 1.7), gl: Math.random() < GLINT }
       );
     }
   }
@@ -577,7 +579,7 @@
 
   function buildMotes() {
     motes = [];
-    var n = 10 + F * 4;
+    var n = MOTES;
     for (var i = 0; i < n; i++) {
       motes.push({
         x: rand(W * 0.14, W * 0.86),
