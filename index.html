@@ -1,31 +1,26 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <!--
-  粉色电子圣诞树 · 单文件版
-  ──────────────────────────────
-  怎么用：直接把这个 html 文件发到微信，对方点开、用浏览器打开就能看。
-  改文字：见下面标了「①」的那一段。
-  改颜色：改 JS 里的 COLORS（6 个 RGB），再同步改 body 的 background 渐变色，
-          就是另一种颜色的树了。
-  音乐：代码实时合成的《铃儿响叮当》，第一次触摸屏幕才响（微信不允许自动播放）。
+  圣诞树 · 配置驱动版
+  ─────────────────────────────
+  配置来自链接 #c=...（editor.html 生成），没有配置时用下面的默认值。
+  配色由主色自动推导：色阶 / 背景 / 光晕 / 文字光晕，背景也可手动指定。
 -->
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="format-detection" content="telephone=no" />
 <meta name="theme-color" content="#0a030f" />
-<title>圣诞快乐 · 粉色圣诞树</title>
-<meta name="description" content="一棵会发光的粉色圣诞树，轻触收下这份圣诞祝福。" />
+<title>圣诞快乐 · 一棵会发光的圣诞树</title>
+<meta name="description" content="轻触屏幕，收下这份圣诞祝福 🎄" />
 
-<!-- 分享卡片（微信/其他 App 抓取用） -->
 <meta property="og:type" content="website" />
-<meta property="og:title" content="圣诞快乐 · 粉色圣诞树" />
-<meta property="og:description" content="一棵会发光的粉色圣诞树，轻触收下这份祝福 🎄" />
+<meta property="og:title" content="圣诞快乐 · 一棵会发光的圣诞树" />
+<meta property="og:description" content="轻触屏幕，收下这份祝福 🎄" />
 <meta property="og:image" content="share-cover.jpg" />
 <meta name="twitter:card" content="summary_large_image" />
 <link rel="image_src" href="share-cover.jpg" />
 <script>
-// 把分享图补成绝对地址，部分抓取器（含微信）读卡片时更稳
 (function () {
   try {
     var m = document.querySelector('meta[property="og:image"]');
@@ -33,6 +28,7 @@
   } catch (e) {}
 })();
 </script>
+
 <style>
   *{ margin:0; padding:0; box-sizing:border-box; }
   html, body{ height:100%; overflow:hidden; }
@@ -41,16 +37,12 @@
     position:fixed; inset:0;
     font-family:"PingFang SC","HarmonyOS Sans SC","Hiragino Sans GB","Microsoft YaHei",system-ui,-apple-system,sans-serif;
     color:#fff;
-    background:
-      radial-gradient(110% 70% at 50% 112%, rgba(255,172,84,.30), rgba(255,172,84,0) 62%),
-      radial-gradient(85% 55% at 50% 0%,  rgba(255,120,66,.16), rgba(255,120,66,0) 70%),
-      radial-gradient(150% 130% at 50% 45%, #241407 0%, #120904 56%, #070302 100%);
+    background:#0a0608;
     -webkit-user-select:none; user-select:none;
     -webkit-tap-highlight-color:transparent;
     touch-action:none;
   }
 
-  /* 暗角，让画面更聚焦 */
   body::after{
     content:""; position:fixed; inset:0; z-index:1; pointer-events:none;
     background:radial-gradient(115% 95% at 50% 44%, rgba(0,0,0,0) 56%, rgba(0,0,0,.58) 100%);
@@ -61,13 +53,11 @@
     width:100%; height:100%; display:block;
   }
 
-  /* 分享缩略图，藏到屏幕外，但保留尺寸方便抓取 */
   .share-cover{
     position:fixed; left:-9999px; top:0;
     width:300px; height:300px; opacity:0; pointer-events:none;
   }
 
-  /* 生成分享封面图时用：?cover=1 */
   body.is-cover .foot,
   body.is-cover .sound{ display:none; }
 
@@ -85,14 +75,14 @@
   .eyebrow{
     display:flex; align-items:center; justify-content:center; gap:11px;
     font-size:10px; font-weight:500; letter-spacing:.40em; text-indent:.40em;
-    color:rgba(255,226,182,.78);
+    color:var(--line);
   }
   .eyebrow i{
     display:block; width:24px; height:1px;
-    background:linear-gradient(90deg, rgba(255,200,120,0), rgba(255,208,142,.80));
+    background:linear-gradient(90deg, rgba(255,255,255,0), var(--line));
   }
   .eyebrow i:last-child{
-    background:linear-gradient(90deg, rgba(255,208,142,.80), rgba(255,200,120,0));
+    background:linear-gradient(90deg, var(--line), rgba(255,255,255,0));
   }
 
   .title{
@@ -102,20 +92,20 @@
     font-weight:800;
     line-height:1.12;
     letter-spacing:.13em; text-indent:.13em;
-    color:#fff6e6;
+    color:var(--text);
     text-shadow:
-      0 0 10px rgba(255,214,150,.55),
-      0 0 34px rgba(255,172,70,.32),
-      0 0 74px rgba(214,132,36,.18);
+      0 0 10px var(--glow1),
+      0 0 34px var(--glow2),
+      0 0 74px var(--glow3);
   }
   .title .name{
     display:block;
     font-size:.44em;
     font-weight:600;
     letter-spacing:.36em; text-indent:.36em;
-    color:#ffe3b0;
+    color:var(--sub);
     margin-bottom:.06em;
-    text-shadow:0 0 12px rgba(255,190,110,.50), 0 0 30px rgba(255,160,70,.28);
+    text-shadow:0 0 12px var(--glow2), 0 0 30px var(--glow3);
   }
   .title .greet{ display:block; }
 
@@ -123,24 +113,39 @@
     margin-top:11px;
     font-size:13px; font-weight:300;
     letter-spacing:.17em; text-indent:.17em;
-    color:rgba(255,232,198,.80);
+    color:var(--sub);
   }
 
   .foot{ opacity:0; animation:rise 1.2s 1.15s cubic-bezier(.2,.8,.25,1) forwards; }
 
   .hint{
     font-size:12.5px; letter-spacing:.22em; text-indent:.22em;
-    color:rgba(255,236,206,.90);
+    color:var(--hint);
     animation:breathe 2.8s ease-in-out infinite;
     transition:opacity .7s ease;
   }
   .hint.gone{ opacity:0 !important; animation:none; }
 
   .sign{
-    margin-top:11px;
+    margin-top:9px;
     font-size:9.5px; letter-spacing:.32em; text-indent:.32em;
-    color:rgba(255,214,160,.45);
+    color:var(--muted);
   }
+
+  .make-own{
+    display:inline-block;
+    margin-top:12px;
+    font-size:10px; letter-spacing:.18em; text-indent:.18em;
+    color:var(--muted);
+    text-decoration:none;
+    padding:4px 12px;
+    border:1px solid var(--btnline);
+    border-radius:999px;
+    background:var(--btn);
+    pointer-events:auto;
+    transition:color .2s ease, border-color .2s ease;
+  }
+  .make-own:active{ color:var(--text); }
 
   /* ---------- 声音按钮 ---------- */
   .sound{
@@ -149,10 +154,10 @@
     bottom:calc(env(safe-area-inset-bottom, 0px) + 16px);
     width:42px; height:42px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
-    border:1px solid rgba(255,214,160,.28);
-    background:rgba(255,190,110,.08);
+    border:1px solid var(--btnline);
+    background:var(--btn);
     -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
-    color:rgba(255,238,206,.92);
+    color:var(--hint);
     font-size:17px; line-height:1; font-family:Georgia,"Times New Roman",serif;
     cursor:pointer; outline:none;
     transition:transform .18s ease, opacity .3s ease;
@@ -163,7 +168,7 @@
   .sound.off span{ opacity:.32; }
   .sound.off::after{
     content:""; position:absolute; width:23px; height:1px;
-    background:rgba(255,222,170,.75); transform:rotate(-45deg);
+    background:var(--muted); transform:rotate(-45deg);
   }
 
   @keyframes rise{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:translateY(0); } }
@@ -173,9 +178,9 @@
   @media (max-height: 640px){
     .title{ font-size:clamp(28px, 9vw, 46px); margin-top:9px; }
     .sub{ margin-top:8px; font-size:12px; }
+    .make-own{ margin-top:8px; }
   }
 
-  /* 横屏（躺着看手机时）把版式压扁，别让字压到树上 */
   @media (max-height: 520px){
     .ui{ padding:14px 20px 10px; }
     .eyebrow{ display:none; }
@@ -183,31 +188,28 @@
     .sub{ font-size:11px; margin-top:6px; letter-spacing:.12em; text-indent:.12em; }
     .hint{ font-size:11px; letter-spacing:.16em; text-indent:.16em; }
     .sign{ font-size:8px; margin-top:6px; }
+    .make-own{ font-size:9px; margin-top:6px; }
   }
-  noscript{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; font-size:14px; }
 </style>
 </head>
 <body>
 
 <canvas id="scene"></canvas>
-
-<!-- 分享缩略图：放在前面，微信抓卡片时用得到；正常浏览看不到 -->
 <img class="share-cover" src="share-cover.jpg" alt="" width="300" height="300" onerror="this.parentNode.removeChild(this)" />
 
-<!-- ============ ① 想改文字，改这里 ============ -->
 <div class="ui">
   <header class="head">
     <p class="eyebrow"><i></i>MERRY CHRISTMAS<i></i></p>
-    <h1 class="title"><span class="name">陈鹤</span><span class="greet">圣诞节快乐</span></h1>
-    <p class="sub">愿所有美好，都如约而至</p>
+    <h1 class="title"><span class="name" id="name"></span><span class="greet" id="greet"></span></h1>
+    <p class="sub" id="sub"></p>
   </header>
 
   <footer class="foot">
     <p class="hint" id="hint">轻触屏幕 · 收下这份祝福</p>
-    <p class="sign">2026 · CHRISTMAS</p>
+    <p class="sign" id="sign"></p>
+    <a class="make-own" href="editor.html">我也要送一棵 →</a>
   </footer>
 </div>
-<!-- ============================================ -->
 
 <button class="sound" id="sound" type="button" aria-label="开关音乐"><span>♪</span></button>
 <noscript>请用支持 JavaScript 的浏览器打开 🎄</noscript>
@@ -216,19 +218,194 @@
 (function () {
   'use strict';
 
-  /* ================= 参数区 ================= */
-  var SPEED      = 0.24;   // 树旋转速度（弧度/秒）
-  var CAM        = 2.6;    // 透视相机距离
-  var INTRO_SEC  = 2.4;    // 开场粒子汇聚时长
-  var BPM        = 100;    // 音乐速度
-  var WAVE       = true;   // 灯带流光效果
-
   var TAU = Math.PI * 2;
-  var COVER = /[?&]cover=1/.test(location.search);
-  if (COVER) document.body.className += ' is-cover';
   function rand(a, b) { return a + Math.random() * (b - a); }
   function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
   function easeOut(x) { return 1 - Math.pow(1 - x, 3); }
+
+  /* ================= 配置 ================= */
+  var DEFAULTS = {
+    m: '#e0a84c',              // 主色（树的颜色）
+    a: '#ff8a5c',              // 点缀色
+    bg: 'auto',                // auto | manual
+    b1: '#241407',             // 手动：底色
+    b2: '#ffb45a',             // 手动：光晕色
+    n: '陈鹤',                 // 收件人
+    t: '圣诞节快乐',           // 主标题
+    s: '愿所有美好，都如约而至', // 副标题
+    g: '2026 · CHRISTMAS',     // 落款
+    f: 2                       // 花哨程度 0~4
+  };
+
+  function decodeCfg(hash) {
+    var m = /[#&]c=([A-Za-z0-9\-_]+)/.exec(hash || '');
+    if (!m) return null;
+    try {
+      var s = m[1].replace(/-/g, '+').replace(/_/g, '/');
+      while (s.length % 4) s += '=';
+      return JSON.parse(decodeURIComponent(escape(atob(s))));
+    } catch (e) { return null; }
+  }
+
+  var CFG = {};
+  (function () {
+    var i;
+    for (i in DEFAULTS) if (DEFAULTS.hasOwnProperty(i)) CFG[i] = DEFAULTS[i];
+    var fromUrl = decodeCfg(location.hash);
+    if (fromUrl) for (i in fromUrl) if (fromUrl.hasOwnProperty(i)) CFG[i] = fromUrl[i];
+    CFG.f = clamp(parseInt(CFG.f, 10) || 0, 0, 4);
+  })();
+
+  /* ================= 颜色计算 ================= */
+  function hexToRgb(hex) {
+    var s = String(hex).replace('#', '');
+    if (s.length === 3) s = s[0] + s[0] + s[1] + s[1] + s[2] + s[2];
+    var n = parseInt(s, 16);
+    if (isNaN(n)) return [255, 255, 255];
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+  function rgbToHsl(c) {
+    var r = c[0] / 255, g = c[1] / 255, b = c[2] / 255;
+    var max = Math.max(r, g, b), min = Math.min(r, g, b);
+    var h = 0, s = 0, l = (max + min) / 2;
+    if (max !== min) {
+      var d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+      else if (max === g) h = (b - r) / d + 2;
+      else h = (r - g) / d + 4;
+      h /= 6;
+    }
+    return { h: h * 360, s: s, l: l };
+  }
+  function hue2rgb(p, q, t) {
+    if (t < 0) t += 1;
+    if (t > 1) t -= 1;
+    if (t < 1 / 6) return p + (q - p) * 6 * t;
+    if (t < 1 / 2) return q;
+    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+    return p;
+  }
+  function hslToRgb(h, s, l) {
+    h = ((h % 360) + 360) % 360 / 360;
+    s = clamp(s, 0, 1); l = clamp(l, 0, 1);
+    var r, g, b;
+    if (s === 0) { r = g = b = l; }
+    else {
+      var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      var p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1 / 3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1 / 3);
+    }
+    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+  }
+  function rgbStr(c) { return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')'; }
+  function rgba(c, a) { return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a + ')'; }
+  function hslStr(h, s, l) { return 'hsl(' + Math.round(h) + ',' + Math.round(s * 100) + '%,' + Math.round(l * 100) + '%)'; }
+
+  function buildTheme(cfg) {
+    var main = hexToRgb(cfg.m);
+    var acc = hexToRgb(cfg.a || cfg.m);
+    var mh = rgbToHsl(main), ah = rgbToHsl(acc);
+    // 用色度判断“白/灰”，HSL 在极端亮度下饱和度会失真
+    var chroma = Math.max(main[0], main[1], main[2]) - Math.min(main[0], main[1], main[2]);
+    var neutral = chroma < 24;
+
+    var h = mh.h, s = neutral ? 0.30 : Math.max(0.58, mh.s), L = mh.l;
+    var Ls, Ss;
+    if (neutral) {
+      Ls = [0.64, 0.76, 0.87, 0.94];
+      Ss = [0.16, 0.11, 0.07, 0.04];
+    } else {
+      Ls = [
+        clamp(L * 0.68, 0.26, 0.48),
+        clamp(L * 0.88, 0.42, 0.64),
+        clamp(L * 1.06, 0.56, 0.78),
+        clamp(L + (1 - L) * 0.55, 0.72, 0.92)
+      ];
+      Ss = [Math.min(1, s * 1.02), Math.min(1, s * 0.98), s * 0.88, s * 0.52];
+    }
+
+    var colors = [
+      hslToRgb(h, Ss[0], Ls[0]),
+      hslToRgb(h, Ss[1], Ls[1]),
+      hslToRgb(h, Ss[2], Ls[2]),
+      hslToRgb(h, Ss[3], Ls[3]),
+      hslToRgb(ah.h, Math.max(0.55, ah.s * 0.9), 0.66),
+      hslToRgb(h, neutral ? 0.07 : Math.min(0.35, s * 0.30), 0.975)
+    ];
+
+    // 背景
+    var bgH = neutral ? 212 : h;
+    var bgS = neutral ? 0.35 : clamp(s * 0.5, 0.16, 0.42);
+    var bg;
+    if (cfg.bg === 'manual') {
+      var b = rgbToHsl(hexToRgb(cfg.b1));
+      var g = hexToRgb(cfg.b2);
+      bg = {
+        c1: hslToRgb(b.h, b.s, clamp(b.l, 0.04, 0.45)),
+        c2: hslToRgb(b.h, b.s, clamp(b.l * 0.62, 0.03, 0.3)),
+        c3: hslToRgb(b.h, b.s, clamp(b.l * 0.30, 0.015, 0.16)),
+        g1: g, g2: g
+      };
+    } else {
+      bg = {
+        c1: hslToRgb(bgH, bgS, 0.085),
+        c2: hslToRgb(bgH, bgS, 0.045),
+        c3: hslToRgb(bgH, bgS, 0.018),
+        g1: hslToRgb(bgH, neutral ? 0.55 : 1, 0.55),
+        g2: hslToRgb(bgH, clamp(bgS * 1.5, 0.2, 0.6), 0.45)
+      };
+    }
+
+    var text = hslToRgb(h, neutral ? 0.12 : 0.22, 0.965);
+
+    return { colors: colors, bg: bg, text: text, neutral: neutral, h: h, s: s };
+  }
+
+  var THEME = buildTheme(CFG);
+  var COLORS = THEME.colors;
+
+  (function applyTheme() {
+    var b = THEME.bg;
+    var bgCss =
+      'radial-gradient(110% 70% at 50% 112%, ' + rgba(b.g1, 0.30) + ', ' + rgba(b.g1, 0) + ' 62%),' +
+      'radial-gradient(85% 55% at 50% 0%, ' + rgba(b.g2, 0.16) + ', ' + rgba(b.g2, 0) + ' 70%),' +
+      'radial-gradient(150% 130% at 50% 45%, ' + rgbStr(b.c1) + ' 0%, ' + rgbStr(b.c2) + ' 56%, ' + rgbStr(b.c3) + ' 100%)';
+    document.body.style.background = bgCss;
+
+    var r = document.documentElement.style;
+    r.setProperty('--text', rgbStr(THEME.text));
+    r.setProperty('--glow1', rgba(COLORS[2], 0.55));
+    r.setProperty('--glow2', rgba(COLORS[2], 0.30));
+    r.setProperty('--glow3', rgba(COLORS[2], 0.16));
+    r.setProperty('--sub', rgba(COLORS[3], 0.82));
+    r.setProperty('--hint', rgba(COLORS[3], 0.90));
+    r.setProperty('--muted', rgba(COLORS[3], 0.45));
+    r.setProperty('--line', rgba(COLORS[3], 0.55));
+    r.setProperty('--btn', rgba(COLORS[3], 0.10));
+    r.setProperty('--btnline', rgba(COLORS[3], 0.26));
+  })();
+
+  /* ================= 文字 ================= */
+  (function applyText() {
+    var nameEl = document.getElementById('name');
+    var greetEl = document.getElementById('greet');
+    var subEl = document.getElementById('sub');
+    var signEl = document.getElementById('sign');
+
+    nameEl.textContent = CFG.n;
+    greetEl.textContent = CFG.t;
+    subEl.textContent = CFG.s;
+    signEl.textContent = CFG.g;
+
+    if (!CFG.n) nameEl.style.display = 'none';
+    if (!CFG.s) subEl.style.display = 'none';
+    if (!CFG.g) signEl.style.display = 'none';
+
+    document.title = (CFG.n ? CFG.n + '，' : '') + CFG.t;
+  })();
 
   /* ================= 画布 ================= */
   var canvas = document.getElementById('scene');
@@ -236,16 +413,21 @@
   var W = 0, H = 0, DPR = 1, sMul = 1;
   var scale = 440, cx = 0, baseY = 700;
   var tGlobal = 0, introT = 0, pulse = 0;
+  var COVER = /[?&]cover=1/.test(location.search);
+  if (COVER) document.body.className += ' is-cover';
 
-  /* ================= 颜色 & 光斑贴图 ================= */
-  var COLORS = [
-    [198, 134,  50],  // 0 深琥珀（树底）
-    [228, 168,  76],  // 1 槟榔金
-    [246, 200, 122],  // 2 浅金
-    [255, 230, 184],  // 3 香槟白
-    [255, 132,  96],  // 4 铜红点缀
-    [255, 250, 238]   // 5 暖白（高光）
-  ];
+  /* ================= 花哨程度 ================= */
+  var F = CFG.f;
+  var TIERS    = 9 + F;
+  var STRANDS  = 5 + Math.round(F / 2);
+  var PER      = 48 + F * 4;
+  var FILL     = 185 + F * 50;
+  var BAUBLES  = 24 + F * 5;
+  var SPEED    = Math.max(0.16, 0.30 - F * 0.03);
+  var WAVE     = F >= 2;
+  var SNOWK    = 0.6 + F * 0.2;
+  var GLOWK    = 0.95 + F * 0.03;
+  var STARF    = 0.044 + F * 0.0035;
 
   function makeSprite(rgb) {
     var size = 64;
@@ -268,7 +450,7 @@
   /* ================= 圣诞树粒子 ================= */
   var pts = [];
 
-  function pickColor(t) {           // t: 0 底 → 1 顶
+  function pickColor(t) {
     var r = Math.random();
     if (r < 0.035) return 4;
     if (r < 0.07)  return 5;
@@ -299,10 +481,9 @@
     pts = [];
     var baseR = 0.365;
 
-    // ① 一层层下垂的枝条：每层挑几个方向，沿半径铺一串光点
-    var TIERS = 11;
+    // ① 枝条
     for (var j = 0; j < TIERS; j++) {
-      var t = 0.07 + (j / (TIERS - 1)) * 0.89;        // 0.07 顶 → 0.96 底
+      var t = 0.07 + (j / (TIERS - 1)) * 0.89;
       var tierY = 1 - t;
       var tierR = baseR * Math.pow(t, 0.88);
       var dirs = 5 + Math.round(t * 4);
@@ -322,11 +503,10 @@
       }
     }
 
-    // ② 缠绕的灯带（螺旋），带流光
-    var STRANDS = 6, PER = 56;
+    // ② 螺旋灯带
     for (var s = 0; s < STRANDS; s++) {
       for (var k2 = 0; k2 < PER; k2++) {
-        var t2 = k2 / (PER - 1);                      // 0 顶 → 1 底
+        var t2 = k2 / (PER - 1);
         var rr = baseR * Math.pow(t2, 0.88) * (0.95 + 0.05 * Math.sin(t2 * 26 + s * 2.1));
         var ang2 = s * (TAU / STRANDS) + t2 * TAU * 2.7;
         var jit = 1 + rand(-0.03, 0.05);
@@ -339,21 +519,21 @@
       }
     }
 
-    // ③ 树身细碎的针叶光点，填补体积
-    for (var i = 0; i < 285; i++) {
+    // ③ 树身碎光
+    for (var i = 0; i < FILL; i++) {
       var t3 = Math.pow(Math.random(), 0.7);
       var y3 = 1 - t3 * 0.985;
       var rr3 = baseR * Math.pow(t3, 0.88);
       var ang3 = rand(0, TAU);
-      var rad3 = rr3 * (0.6 + 0.4 * Math.random());
+      var rad3 = rr3 * (0.60 + 0.40 * Math.random());
       addPoint(
         Math.cos(ang3) * rad3, y3, Math.sin(ang3) * rad3,
         { s: rand(1.5, 2.6), a: rand(0.42, 0.8) }
       );
     }
 
-    // ④ 大颗的“挂饰”灯泡
-    for (var m = 0; m < 34; m++) {
+    // ④ 挂饰
+    for (var m2 = 0; m2 < BAUBLES; m2++) {
       var t4 = rand(0.06, 0.94);
       var y4 = 1 - t4;
       var rr4 = baseR * Math.pow(t4, 0.88) * 0.99;
@@ -365,7 +545,7 @@
     }
   }
 
-  /* ================= 背景星 / 雪 / 礼花 ================= */
+  /* ================= 背景星 / 雪 / 光尘 / 礼花 ================= */
   var stars = [], snow = [], motes = [], bits = [], rings = [];
 
   function buildStars() {
@@ -382,7 +562,7 @@
 
   function buildSnow() {
     snow = [];
-    var n = Math.round(clamp(W * H / 9000, 34, 90));
+    var n = Math.round(clamp(W * H / 9000 * SNOWK, 20, 150));
     for (var i = 0; i < n; i++) {
       snow.push({
         x: rand(-20, W + 20), y: rand(-H * 0.1, H),
@@ -397,7 +577,8 @@
 
   function buildMotes() {
     motes = [];
-    for (var i = 0; i < 18; i++) {
+    var n = 10 + F * 4;
+    for (var i = 0; i < n; i++) {
       motes.push({
         x: rand(W * 0.14, W * 0.86),
         y: rand(baseY - scale, baseY + 24),
@@ -420,18 +601,18 @@
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
 
     sMul = clamp(Math.min(W, H) / 430, 0.78, 1.4);
-    if (COVER) {                        // 封面模式：树略小、整体下移，避开标题
+    if (COVER) {
       scale = Math.min(H * 0.52, W * 0.95);
       baseY = H * 0.93;
-    } else if (W > H * 1.15) {          // 横屏：给文字留出上方空间
+    } else if (W > H * 1.15) {
       scale = Math.min(H * 0.52, W * 0.5);
       baseY = H * 0.87;
-    } else if (H < 720) {               // 矮屏：树小一点，别顶到标题
-      scale = Math.min(H * 0.50, W * 1.00);
-      baseY = H * 0.875;
+    } else if (H < 720) {
+      scale = Math.min(H * 0.47, W * 0.95);
+      baseY = H * 0.80;
     } else {
       scale = Math.min(H * 0.58, W * 1.05);
-      baseY = H * 0.855;
+      baseY = H * 0.845;
     }
     cx = W / 2;
 
@@ -453,7 +634,7 @@
     ctx.globalCompositeOperation = 'lighter';
     for (var i = 0; i < stars.length; i++) {
       var s = stars[i];
-      var a = s.a * (0.5 + 0.5 * Math.sin(tGlobal * s.tw + s.ph));
+      var a = s.a * (0.5 + 0.5 * Math.sin(tGlobal * s.tw + s.ph)) * 0.85;
       if (a <= 0.02) continue;
       var w = s.r * 3.2;
       ctx.globalAlpha = a;
@@ -467,9 +648,9 @@
     var y = baseY - scale * 0.46;
     var r = scale * 0.8;
     var g = ctx.createRadialGradient(cx, y, 0, cx, y, r);
-    g.addColorStop(0, 'rgba(255,172,92,.16)');
-    g.addColorStop(0.5, 'rgba(255,140,70,.07)');
-    g.addColorStop(1, 'rgba(255,120,52,0)');
+    g.addColorStop(0, rgba(COLORS[1], 0.16));
+    g.addColorStop(0.5, rgba(COLORS[4], 0.07));
+    g.addColorStop(1, rgba(COLORS[4], 0));
     ctx.fillStyle = g;
     ctx.fillRect(cx - r, y - r, r * 2, r * 2);
   }
@@ -478,10 +659,9 @@
     var gy = baseY + 8;
     var r = scale * 0.62;
     var g = ctx.createRadialGradient(cx, gy, 0, cx, gy, r);
-    g.addColorStop(0, 'rgba(255,182,94,.32)');
-    g.addColorStop(0.42, 'rgba(255,152,72,.12)');
-    g.addColorStop(1, 'rgba(255,140,60,0)');
-
+    g.addColorStop(0, rgba(COLORS[1], 0.32));
+    g.addColorStop(0.42, rgba(COLORS[1], 0.12));
+    g.addColorStop(1, rgba(COLORS[1], 0));
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     ctx.translate(cx, gy);
@@ -498,7 +678,7 @@
     var rot = tGlobal * SPEED;
     var cosR = Math.cos(rot), sinR = Math.sin(rot);
     var bob = Math.sin(tGlobal * 0.8) * 2.4;
-    var boost = 1 + pulse * 0.35;
+    var boost = (1 + pulse * 0.35) * GLOWK;
 
     ctx.globalCompositeOperation = 'lighter';
 
@@ -515,7 +695,7 @@
 
       var x = lx * cosR - lz * sinR;
       var z = lx * sinR + lz * cosR;
-      var persp = CAM / (CAM - z);
+      var persp = 2.6 / (2.6 - z);
       var sx = cx + x * persp * scale;
       var sy = baseY + bob - ly * persp * scale;
       if (sx < -40 || sx > W + 40 || sy < -40 || sy > H + 40) continue;
@@ -533,9 +713,9 @@
       if (p.b) {
         ctx.globalAlpha = Math.min(1, a * 0.85);
         ctx.drawImage(SPR[5], sx - s * 0.34, sy - s * 0.34, s * 0.68, s * 0.68);
-        if (p.gl) {                       // 少数挂饰才带十字星芒
+        if (p.gl) {
           ctx.globalAlpha = Math.min(1, a * 0.38);
-          ctx.strokeStyle = 'rgba(255,238,249,1)';
+          ctx.strokeStyle = 'rgba(255,255,255,1)';
           ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.moveTo(sx - s * 1.7, sy); ctx.lineTo(sx + s * 1.7, sy);
@@ -555,28 +735,26 @@
 
     var x = cx;
     var y = baseY - 1.045 * scale + Math.sin(tGlobal * 0.8) * 2.4;
-    var size = scale * 0.053 * (1 + 0.05 * Math.sin(tGlobal * 2.3));
+    var size = scale * STARF * (1 + 0.05 * Math.sin(tGlobal * 2.3));
 
     ctx.globalCompositeOperation = 'lighter';
 
-    // 光晕
     var g = ctx.createRadialGradient(x, y, 0, x, y, size * 5.4);
-    g.addColorStop(0, 'rgba(255,244,222,.55)');
-    g.addColorStop(0.22, 'rgba(255,198,124,.28)');
-    g.addColorStop(0.58, 'rgba(255,162,72,.09)');
-    g.addColorStop(1, 'rgba(255,162,72,0)');
+    g.addColorStop(0, 'rgba(255,255,255,.58)');
+    g.addColorStop(0.22, rgba(COLORS[3], 0.30));
+    g.addColorStop(0.58, rgba(COLORS[2], 0.09));
+    g.addColorStop(1, rgba(COLORS[2], 0));
     ctx.globalAlpha = a;
     ctx.fillStyle = g;
     ctx.beginPath();
     ctx.arc(x, y, size * 5.4, 0, TAU);
     ctx.fill();
 
-    // 十字光芒
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(Math.sin(tGlobal * 0.45) * 0.12);
     ctx.globalAlpha = a * 0.20;
-    ctx.strokeStyle = 'rgba(255,236,248,1)';
+    ctx.strokeStyle = 'rgba(255,255,255,1)';
     ctx.lineWidth = 1;
     var rl = size * 2.1;
     ctx.beginPath();
@@ -585,7 +763,6 @@
     ctx.stroke();
     ctx.restore();
 
-    // 五角星
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(tGlobal * 0.16);
@@ -600,11 +777,11 @@
     ctx.closePath();
     var sg = ctx.createLinearGradient(0, -size, 0, size);
     sg.addColorStop(0, 'rgba(255,255,255,1)');
-    sg.addColorStop(0.5, 'rgba(255,240,208,1)');
-    sg.addColorStop(1, 'rgba(255,188,98,1)');
+    sg.addColorStop(0.5, rgba(COLORS[3], 1));
+    sg.addColorStop(1, rgba(COLORS[2], 1));
     ctx.globalAlpha = a;
     ctx.fillStyle = sg;
-    ctx.shadowColor = 'rgba(255,192,112,.9)';
+    ctx.shadowColor = rgba(COLORS[2], 0.9);
     ctx.shadowBlur = size * 1.3;
     ctx.fill();
     ctx.restore();
@@ -619,13 +796,11 @@
       var f = snow[i];
       f.y += f.vy * dt;
       f.x += Math.sin(tGlobal * f.sp + f.ph) * f.sw * dt + f.vx * dt;
-
       if (f.y > H + 12) { f.y = -12; f.x = rand(-20, W + 20); }
       if (f.x < -24) f.x = W + 24;
       if (f.x > W + 24) f.x = -24;
-
       var s = f.r * (1 + 0.3 * Math.sin(tGlobal * f.sp * 1.7 + f.ph));
-      ctx.globalAlpha = f.a * (0.6 + 0.4 * Math.sin(tGlobal * f.sp + f.ph));
+      ctx.globalAlpha = f.a * (0.6 + 0.4 * Math.sin(tGlobal * f.sp + f.ph)) * 0.9;
       ctx.drawImage(SPR[f.c], f.x - s * 2, f.y - s * 2, s * 4, s * 4);
     }
     ctx.globalAlpha = 1;
@@ -654,7 +829,6 @@
 
   function drawBits(dt) {
     ctx.globalCompositeOperation = 'lighter';
-
     for (var i = bits.length - 1; i >= 0; i--) {
       var b = bits[i];
       b.life -= dt;
@@ -667,20 +841,18 @@
       ctx.globalAlpha = Math.min(1, k * 1.25);
       ctx.drawImage(SPR[b.c], b.x - s, b.y - s, s * 2, s * 2);
     }
-
     for (var j = rings.length - 1; j >= 0; j--) {
       var r = rings[j];
       r.life -= dt;
       if (r.life <= 0) { rings.splice(j, 1); continue; }
       var k2 = 1 - r.life / r.max;
       ctx.globalAlpha = (1 - k2) * 0.45;
-      ctx.strokeStyle = 'rgba(255,226,176,1)';
+      ctx.strokeStyle = rgba(COLORS[3], 1);
       ctx.lineWidth = 1.4;
       ctx.beginPath();
       ctx.arc(r.x, r.y, 8 + k2 * 92, 0, TAU);
       ctx.stroke();
     }
-
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
   }
@@ -689,7 +861,6 @@
   var lastT = 0;
   function frame(now) {
     requestAnimationFrame(frame);
-
     if (!lastT) lastT = now;
     var dt = (now - lastT) / 1000;
     lastT = now;
@@ -697,7 +868,7 @@
     if (dt < 0) dt = 0;
 
     tGlobal += dt;
-    if (introT < 1) introT = Math.min(1, introT + dt / INTRO_SEC);
+    if (introT < 1) introT = Math.min(1, introT + dt / 2.4);
     if (pulse > 0) pulse = Math.max(0, pulse - dt * 2.2);
 
     ctx.clearRect(0, 0, W, H);
@@ -746,22 +917,17 @@
 
   function handleTap(x, y, target) {
     if (x == null) return;
-    if (target && target.closest && target.closest('.sound')) return;
-
+    if (target && target.closest && (target.closest('.sound') || target.closest('.make-own'))) return;
     burst(x, y);
-
     if (!audioOn && AudioCtx) startAudio();
     if (audioOn && ac && ac.state === 'suspended') { try { ac.resume(); } catch (err) {} }
-
-    if (hint) {
-      hint.classList.add('gone');
-    }
+    if (hint) hint.classList.add('gone');
   }
 
   document.addEventListener('touchstart', onTouch, { passive: true });
   document.addEventListener('mousedown', onMouse, false);
 
-  /* ================= 音乐（Web Audio 合成，无外部文件） ================= */
+  /* ================= 音乐 ================= */
   var AudioCtx = window.AudioContext || window.webkitAudioContext;
   var ac = null, master = null, audioOn = false, muted = false, nextStart = 0, timer = null;
 
@@ -776,7 +942,6 @@
     }
   })();
 
-  // 铃儿响叮当（副歌），音乐盒音色
   var MELODY = [
     ['E5', 0, 1], ['E5', 1, 1], ['E5', 2, 2],
     ['E5', 4, 1], ['E5', 5, 1], ['E5', 6, 2],
@@ -797,6 +962,7 @@
     ['C5', 60, 4]
   ];
   var LOOP_BEATS = 64;
+  var BPM = 100;
 
   function noteVoice(freq, when, durSec) {
     var end = when + Math.max(0.55, durSec * 1.1);
@@ -804,23 +970,18 @@
     g.gain.setValueAtTime(0.0001, when);
     g.gain.exponentialRampToValueAtTime(0.13, when + 0.012);
     g.gain.exponentialRampToValueAtTime(0.0001, end);
-
     var o1 = ac.createOscillator();
     o1.type = 'sine';
     o1.frequency.value = freq;
-
     var o2 = ac.createOscillator();
     o2.type = 'triangle';
     o2.frequency.value = freq * 2;
-
     var g2 = ac.createGain();
     g2.gain.value = 0.26;
-
     o1.connect(g);
     o2.connect(g2);
     g2.connect(g);
     g.connect(master);
-
     var stop = end + 0.5;
     o1.start(when); o1.stop(stop);
     o2.start(when); o2.stop(stop);
@@ -842,12 +1003,9 @@
     try {
       ac = new AudioCtx();
       if (ac.state === 'suspended' && ac.resume) ac.resume();
-
       master = ac.createGain();
       master.gain.value = 0.0001;
       master.connect(ac.destination);
-
-      // 一点点空间感
       var delay = ac.createDelay(1.0);
       delay.delayTime.value = 0.30;
       var fb = ac.createGain();
@@ -859,12 +1017,9 @@
       fb.connect(delay);
       delay.connect(wet);
       wet.connect(ac.destination);
-
       master.gain.exponentialRampToValueAtTime(0.62, ac.currentTime + 2.4);
-
       nextStart = ac.currentTime + 0.35;
       nextStart = scheduleLoop(nextStart);
-
       timer = setInterval(tick, 400);
       audioOn = true;
       muted = false;
