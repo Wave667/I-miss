@@ -343,10 +343,11 @@
       <div class="thumbs" id="thumbs"></div>
       <p class="note">照片会先在本机加密再上传，GitHub 上只有密文；解密钥匙放在分享链接里，只有拿到链接的人能看到。</p>
       <div class="sub2">
-        <button id="savePhotos" type="button">下载加密照片包</button>
+        <button id="saveIndex" type="button">下载含照片的 index.html</button>
+        <button id="savePhotos" type="button">只下载 photos.js</button>
         <button id="clearPhotos" type="button">清空照片</button>
       </div>
-      <p class="note">加完照片后，把 photos.js 和 index.html 一起传到同一个仓库，再用「生成分享链接」发出去。</p>
+      <p class="note">加完照片后点「下载含照片的 index.html」，用这一个文件覆盖仓库里的 index.html，再用「生成分享链接」发出去。照片是加密的，仓库里只有密文。</p>
     </section>
 
     <section>
@@ -788,6 +789,42 @@
       } catch (err) { k = ''; }
     }
     return k;
+  }
+
+  var saveIndexBtn = document.getElementById('saveIndex');
+  if (saveIndexBtn) {
+    saveIndexBtn.addEventListener('click', function () {
+      if (!photos.length) { toast('先加几张照片'); return; }
+      var key = getPhotoKey();
+      if (!key || !window.crypto || !window.crypto.subtle) {
+        toast('当前浏览器不支持加密，请用 Chrome/Edge');
+        return;
+      }
+      var data = new TextEncoder().encode(JSON.stringify(photos));
+      var iv = window.crypto.getRandomValues(new Uint8Array(12));
+      window.crypto.subtle.importKey('raw', b64urlToBytes(key), { name: 'AES-GCM' }, false, ['encrypt'])
+        .then(function (k) { return window.crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, k, data); })
+        .then(function (buf) {
+          var enc = JSON.stringify({ v: 1, iv: bytesToB64url(iv), data: bytesToB64url(new Uint8Array(buf)) });
+          return fetch('index.html?t=' + Date.now(), { cache: 'no-store' })
+            .then(function (r) { if (!r.ok) throw new Error('拿不到 index.html'); return r.text(); })
+            .then(function (html) {
+              var tag = '<script src="photos.js" onerror="this.remove()"><\/script>';
+              var inline = '<script>window.PHOTOS_ENC=' + enc + ';<\/script>';
+              if (html.indexOf(tag) < 0) throw new Error('线上 index.html 不是最新版，请先上传一次');
+              var out = html.replace(tag, inline);
+              var blob = new Blob([out], { type: 'text/html;charset=utf-8' });
+              var a = document.createElement('a');
+              a.href = URL.createObjectURL(blob);
+              a.download = 'index.html';
+              document.body.appendChild(a);
+              a.click();
+              setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+              toast('已下载，覆盖上传这一个文件即可');
+            });
+        })
+        .catch(function (err) { toast('生成失败：' + (err.message || '请用线上地址打开控制台')); });
+    });
   }
 
   var saveBtn = document.getElementById('savePhotos');
