@@ -171,6 +171,56 @@
     background:var(--muted); transform:rotate(-45deg);
   }
 
+  /* ---------- 拆礼物开场 ---------- */
+  .gift{
+    position:fixed; inset:0; z-index:8;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--giftbg, #0a0608);
+    cursor:pointer;
+    transition:opacity .9s ease, transform 1.1s ease;
+  }
+  .gift.open{ opacity:0; transform:scale(1.08); pointer-events:none; }
+  .gift-card{ text-align:center; padding:0 30px; animation:giftFloat 4s ease-in-out infinite; }
+  .gift-icon{
+    font-size:66px; line-height:1;
+    filter:drop-shadow(0 0 34px var(--glow1));
+    animation:giftPulse 3s ease-in-out infinite;
+  }
+  .gift-line{
+    margin-top:28px;
+    font-size:15.5px; letter-spacing:.14em; text-indent:.14em;
+    color:var(--text);
+  }
+  .gift-sub{
+    display:inline-block;
+    margin-top:22px;
+    padding:9px 22px;
+    font-size:11px; letter-spacing:.30em; text-indent:.30em;
+    color:var(--sub);
+    border:1px solid var(--btnline);
+    border-radius:999px;
+    background:var(--btn);
+    animation:breathe 2.6s ease-in-out infinite;
+  }
+  @keyframes giftFloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-8px); } }
+  @keyframes giftPulse{ 0%,100%{ opacity:.85; } 50%{ opacity:1; } }
+  @keyframes caret{ 0%,49%{ opacity:.55; } 50%,100%{ opacity:0; } }
+
+  body.is-preview .make-own{ display:none; }
+  body.gated .head, body.gated .foot{ opacity:0 !important; animation:none !important; }
+  .title.type .greet::after{
+    content:"\258D"; margin-left:.06em; font-weight:300; opacity:.55;
+    animation:caret .9s steps(1) infinite;
+  }
+
+  /* 卡片式细边框，增加礼物质感 */
+  body::before{
+    content:""; position:fixed; inset:10px; z-index:1; pointer-events:none;
+    border:1px solid var(--btnline);
+    border-radius:16px;
+    opacity:.65;
+  }
+
   @keyframes rise{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:translateY(0); } }
   @keyframes fadeIn{ from{ opacity:0; } to{ opacity:1; } }
   @keyframes breathe{ 0%,100%{ opacity:.55; } 50%{ opacity:1; } }
@@ -196,6 +246,14 @@
 
 <canvas id="scene"></canvas>
 <img class="share-cover" src="share-cover.jpg" alt="" width="300" height="300" onerror="this.parentNode.removeChild(this)" />
+
+<div class="gift" id="gift">
+  <div class="gift-card">
+    <div class="gift-icon">🎁</div>
+    <p class="gift-line" id="giftLine">有人给你留了一棵树</p>
+    <p class="gift-sub">轻触拆开</p>
+  </div>
+</div>
 
 <div class="ui">
   <header class="head">
@@ -386,35 +444,67 @@
     r.setProperty('--line', rgba(COLORS[3], 0.55));
     r.setProperty('--btn', rgba(COLORS[3], 0.10));
     r.setProperty('--btnline', rgba(COLORS[3], 0.26));
+    r.setProperty('--giftbg', 'radial-gradient(70% 55% at 50% 42%, ' + rgba(THEME.bg.g1, 0.20) + ', ' + rgba(THEME.bg.g1, 0) + ' 72%), ' + rgbStr(THEME.bg.c3));
   })();
 
   /* ================= 文字 ================= */
-  (function applyText() {
-    var nameEl = document.getElementById('name');
-    var greetEl = document.getElementById('greet');
-    var subEl = document.getElementById('sub');
-    var signEl = document.getElementById('sign');
+  var nameEl = document.getElementById('name');
+  var greetEl = document.getElementById('greet');
+  var subEl = document.getElementById('sub');
+  var signEl = document.getElementById('sign');
+  var titleEl = document.querySelector('.title');
 
-    nameEl.textContent = CFG.n;
-    greetEl.textContent = CFG.t;
+  function fillBase() {
     subEl.textContent = CFG.s;
     signEl.textContent = CFG.g;
-
     if (!CFG.n) nameEl.style.display = 'none';
     if (!CFG.s) subEl.style.display = 'none';
     if (!CFG.g) signEl.style.display = 'none';
-
     document.title = (CFG.n ? CFG.n + '，' : '') + CFG.t;
-  })();
+  }
+
+  function typeInto(el, text, speed, done) {
+    var i = 0;
+    el.textContent = '';
+    (function step() {
+      if (i >= text.length) { if (done) done(); return; }
+      el.textContent = text.slice(0, ++i);
+      setTimeout(step, speed);
+    })();
+  }
+
+  function typeHead() {
+    titleEl.classList.add('type');
+    var finish = function () { titleEl.classList.remove('type'); };
+    if (CFG.n) {
+      typeInto(nameEl, CFG.n, 110, function () {
+        typeInto(greetEl, CFG.t, 90, finish);
+      });
+    } else {
+      typeInto(greetEl, CFG.t, 90, finish);
+    }
+  }
+
+  fillBase();
+  if (!GATE) {
+    nameEl.textContent = CFG.n;
+    greetEl.textContent = CFG.t;
+  }
 
   /* ================= 画布 ================= */
   var canvas = document.getElementById('scene');
   var ctx = canvas.getContext('2d');
   var W = 0, H = 0, DPR = 1, sMul = 1;
   var scale = 440, cx = 0, baseY = 700;
-  var tGlobal = 0, introT = 0, pulse = 0;
+  var tGlobal = 0, introT = 0, pulse = 0, flash = 0;
+  var meteors = [], nextMeteor = 8 + Math.random() * 10;
   var COVER = /[?&]cover=1/.test(location.search);
+  var PREVIEW = /[?&]preview=1/.test(location.search);
+  var GATE = !PREVIEW && !COVER;
   if (COVER) document.body.className += ' is-cover';
+  if (PREVIEW) document.body.className += ' is-preview';
+  if (GATE) document.body.className += ' gated';
+  if (PREVIEW) introT = 1;                 // 预览不播放开场动画
 
   /* ================= 花哨程度 ================= */
   var F = CFG.f;
@@ -870,8 +960,10 @@
     if (dt < 0) dt = 0;
 
     tGlobal += dt;
-    if (introT < 1) introT = Math.min(1, introT + dt / 2.4);
+    if (opened && introT < 1) introT = Math.min(1, introT + dt / 2.4);
     if (pulse > 0) pulse = Math.max(0, pulse - dt * 2.2);
+    if (flash > 0) flash = Math.max(0, flash - dt * 1.6);
+    if (tGlobal > nextMeteor) { spawnMeteor(); nextMeteor = tGlobal + rand(16, 38); }
 
     ctx.clearRect(0, 0, W, H);
     drawStars();
@@ -882,6 +974,54 @@
     drawSnow(dt);
     drawMotes(dt);
     drawBits(dt);
+    drawMeteors(dt);
+
+    if (flash > 0) {
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = 'rgba(255,255,255,' + (0.22 * flash * flash).toFixed(3) + ')';
+      ctx.fillRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'source-over';
+    }
+  }
+
+  /* ================= 流星 ================= */
+  function spawnMeteor() {
+    var fromLeft = Math.random() < 0.5;
+    meteors.push({
+      x: fromLeft ? rand(-0.1 * W, 0.45 * W) : rand(0.55 * W, 1.1 * W),
+      y: rand(-0.05 * H, 0.25 * H),
+      vx: (fromLeft ? 1 : -1) * rand(320, 520),
+      vy: rand(140, 240),
+      life: 1.1, max: 1.1
+    });
+  }
+
+  function drawMeteors(dt) {
+    if (!meteors.length) return;
+    ctx.globalCompositeOperation = 'lighter';
+    for (var i = meteors.length - 1; i >= 0; i--) {
+      var m = meteors[i];
+      m.life -= dt;
+      if (m.life <= 0) { meteors.splice(i, 1); continue; }
+      m.x += m.vx * dt;
+      m.y += m.vy * dt;
+      var k = m.life / m.max;
+      var tx = m.x - m.vx * 0.2, ty = m.y - m.vy * 0.2;
+      var g = ctx.createLinearGradient(m.x, m.y, tx, ty);
+      g.addColorStop(0, 'rgba(255,255,255,' + (0.85 * k).toFixed(3) + ')');
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.strokeStyle = g;
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.moveTo(m.x, m.y);
+      ctx.lineTo(tx, ty);
+      ctx.stroke();
+      var s = 2.2 * sMul;
+      ctx.globalAlpha = k;
+      ctx.drawImage(SPR[5], m.x - s, m.y - s, s * 2, s * 2);
+      ctx.globalAlpha = 1;
+    }
+    ctx.globalCompositeOperation = 'source-over';
   }
 
   /* ================= 交互 ================= */
@@ -899,7 +1039,7 @@
         c: [0, 1, 3, 4, 5][Math.floor(Math.random() * 5)]
       });
     }
-    rings.push({ x: x, y: y, life: 0.85, max: 0.85 });
+    if (rings.length < 5) rings.push({ x: x, y: y, life: 0.85, max: 0.85 });
     pulse = 1;
   }
 
@@ -917,13 +1057,109 @@
     handleTap(e.clientX, e.clientY, e.target);
   }
 
+  var opened = !GATE;
+  var tapTimes = [];
+
+  function bell(freq, delay) {
+    if (!ac || !master) return;
+    try {
+      var t = ac.currentTime + (delay || 0);
+      var g = ac.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.18, t + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
+      var o1 = ac.createOscillator(); o1.type = 'sine'; o1.frequency.value = freq;
+      var o2 = ac.createOscillator(); o2.type = 'sine'; o2.frequency.value = freq * 2.76;
+      var g2 = ac.createGain(); g2.gain.value = 0.22;
+      o1.connect(g); o2.connect(g2); g2.connect(g); g.connect(master);
+      o1.start(t); o2.start(t);
+      o1.stop(t + 1); o2.stop(t + 1);
+    } catch (e) {}
+  }
+
+  function starCenter() {
+    return {
+      x: cx,
+      y: baseY - 1.045 * scale + Math.sin(tGlobal * 0.8) * 2.4,
+      r: Math.max(26, scale * 0.075)
+    };
+  }
+
+  function egg() {
+    flash = 0.8;
+    for (var i = 0; i < 90; i++) {
+      bits.push({
+        x: rand(0, W), y: rand(-90, H * 0.12),
+        vx: rand(-45, 45), vy: rand(60, 210),
+        life: rand(1.4, 2.6), max: 2.6,
+        s: rand(2, 4.6),
+        c: Math.floor(Math.random() * 6)
+      });
+    }
+    bell(2093, 0); bell(1568, 0.12); bell(2637, 0.24);
+  }
+
   function handleTap(x, y, target) {
     if (x == null) return;
-    if (target && target.closest && (target.closest('.sound') || target.closest('.make-own'))) return;
-    burst(x, y);
+    if (target && target.closest && (target.closest('.sound') || target.closest('.make-own') || target.closest('.gift'))) return;
+
     if (!audioOn && AudioCtx) startAudio();
     if (audioOn && ac && ac.state === 'suspended') { try { ac.resume(); } catch (err) {} }
+
+    var sp = starCenter();
+    var dx = x - sp.x, dy = y - sp.y;
+    if (dx * dx + dy * dy < sp.r * sp.r) {
+      flash = 1;
+      rings.push({ x: sp.x, y: sp.y, life: 1.1, max: 1.1 });
+      for (var k = 0; k < 26; k++) {
+        var ang = rand(0, TAU), spd = rand(80, 300);
+        bits.push({
+          x: sp.x, y: sp.y,
+          vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd,
+          life: rand(0.6, 1.2), max: 1.2,
+          s: rand(2, 5), c: [3, 5, 4][k % 3]
+        });
+      }
+      bell(1568, 0);
+    } else {
+      burst(x, y);
+      bell(1046, 0);
+    }
+
+    var now = Date.now();
+    tapTimes.push(now);
+    while (tapTimes.length && now - tapTimes[0] > 3000) tapTimes.shift();
+    if (tapTimes.length >= 5) { tapTimes.length = 0; egg(); }
+
     if (hint) hint.classList.add('gone');
+  }
+
+  /* ---------- 拆礼物 ---------- */
+  var giftEl = document.getElementById('gift');
+  var giftLine = document.getElementById('giftLine');
+  if (giftLine) giftLine.textContent = CFG.n ? CFG.n + '，有人给你留了一棵树' : '有人给你留了一棵树';
+
+  function openGift() {
+    if (opened) return;
+    opened = true;
+    if (!audioOn && AudioCtx) startAudio();
+    bell(1318, 0);
+    if (giftEl) {
+      giftEl.className = 'gift open';
+      setTimeout(function () { if (giftEl && giftEl.parentNode) giftEl.parentNode.removeChild(giftEl); }, 1100);
+    }
+    document.body.className = document.body.className.replace(/\bgated\b/g, '');
+    setTimeout(typeHead, 260);
+  }
+
+  if (GATE && giftEl) {
+    giftEl.addEventListener('click', openGift, false);
+    giftEl.addEventListener('touchstart', function (e) {
+      if (e.cancelable) e.preventDefault();
+      openGift();
+    }, { passive: false });
+  } else if (giftEl) {
+    giftEl.style.display = 'none';
   }
 
   document.addEventListener('touchstart', onTouch, { passive: true });
