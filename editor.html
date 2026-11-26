@@ -78,6 +78,20 @@
     border-radius:8px; background:transparent; cursor:pointer;
   }
 
+  .bless-row{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-top:8px;
+  }
+  .bless-row .cnt{ font-size:11px; color:rgba(255,255,255,.35); }
+  .bless-row button{
+    padding:7px 12px; border-radius:9px;
+    border:1px solid rgba(255,214,140,.28);
+    background:rgba(255,214,140,.08);
+    color:rgba(255,236,200,.9);
+    font-size:12px; cursor:pointer; font-family:inherit;
+  }
+  .bless-row button:hover{ background:rgba(255,214,140,.16); }
+
   .seg{ display:flex; gap:6px; }
   .seg button, .fancy button{
     flex:1;
@@ -176,35 +190,6 @@
     text-align:center; font-size:11px; color:rgba(255,255,255,.25);
     letter-spacing:.08em;
   }
-
-  .filebtn{
-    display:block; text-align:center;
-    padding:11px; border-radius:11px;
-    border:1px dashed rgba(255,214,140,.35);
-    background:rgba(255,214,140,.06);
-    color:rgba(255,236,200,.9);
-    font-size:13px; cursor:pointer;
-    transition:background .15s ease;
-  }
-  .filebtn:hover{ background:rgba(255,214,140,.12); }
-  .thumbs{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
-  .thumbs .t{ position:relative; width:64px; height:64px; border-radius:9px; overflow:hidden; border:1px solid rgba(255,255,255,.16); }
-  .thumbs .t img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .thumbs .t button{
-    position:absolute; right:2px; top:2px;
-    width:18px; height:18px; border-radius:50%;
-    border:0; background:rgba(0,0,0,.6); color:#fff;
-    font-size:11px; line-height:18px; padding:0; cursor:pointer;
-  }
-  .thumbs .empty{ font-size:11px; color:rgba(255,255,255,.3); padding:4px 0; }
-  .sub2{ display:flex; gap:8px; margin-top:10px; }
-  .sub2 button{
-    flex:1; padding:9px; border-radius:9px;
-    border:1px solid rgba(255,255,255,.12);
-    background:rgba(255,255,255,.04);
-    color:rgba(255,255,255,.72); font-size:12px; cursor:pointer; font-family:inherit;
-  }
-  .sub2 button:hover{ background:rgba(255,255,255,.08); }
 
   /* ---------- 圣诞氛围 ---------- */
   body{
@@ -333,22 +318,13 @@
       <div class="row"><span>主标题</span><input type="text" id="fTitle" maxlength="12" /></div>
       <div class="row"><span>副标题</span><input type="text" id="fSub" maxlength="24" /></div>
       <div class="row"><span>落款</span><input type="text" id="fSign" maxlength="28" /></div>
+      <div class="row"><span>祝福语</span><input type="text" id="fBless" maxlength="20" placeholder="散开时显示的 20 字祝福" /></div>
+      <div class="bless-row">
+        <span class="cnt" id="blessCnt">0/20</span>
+        <button id="randBless" type="button">随机来一条</button>
+      </div>
     </section>
 
-    <section>
-      <h2><span class="ico">📷</span>照片（可选）</h2>
-      <label class="filebtn">从相册选照片
-        <input type="file" id="photoInput" accept="image/*" multiple hidden />
-      </label>
-      <div class="thumbs" id="thumbs"></div>
-      <p class="note">照片会先在本机加密再上传，GitHub 上只有密文；解密钥匙放在分享链接里，只有拿到链接的人能看到。</p>
-      <div class="sub2">
-        <button id="saveIndex" type="button">下载含照片的 index.html</button>
-        <button id="savePhotos" type="button">只下载 photos.js</button>
-        <button id="clearPhotos" type="button">清空照片</button>
-      </div>
-      <p class="note">加完照片后点「下载含照片的 index.html」，用这一个文件覆盖仓库里的 index.html，再用「生成分享链接」发出去。照片是加密的，仓库里只有密文。</p>
-    </section>
 
     <section>
       <h2><span class="ico">✨</span>花哨程度</h2>
@@ -407,6 +383,7 @@
     m: '#e0a84c', a: '#ff8a5c',
     bg: 'auto', b1: '#241407', b2: '#ffb45a',
     n: '', t: '圣诞快乐', s: '愿所有美好，都如约而至', g: '2026 · CHRISTMAS',
+    b: '圣诞快乐雪花纷飞铃儿叮当岁岁平安年年胜意',
     f: 2
   };
 
@@ -523,10 +500,31 @@
   var frame = document.getElementById('frame');
   var phone = document.getElementById('phone');
 
+  // 圣诞主题：开头 + 圣诞意象 + 三句祝愿 = 4+4+12 = 20 字
+  var BLESS_OPEN = ['圣诞快乐', '平安夜里', '圣诞树下', '铃声响时', '雪落下来', '礼物拆开'];
+  var BLESS_THEME = ['雪花纷飞', '铃儿叮当', '驯鹿拉车', '姜饼甜甜', '烛光暖暖', '袜子装满', '苹果红红', '星光满天', '松枝常青', '雪橇轻轻'];
+  var BLESS_WISH = ['平安喜乐', '万事顺遂', '岁岁欢愉', '年年胜意', '眉眼带笑', '未来可期', '心想事成', '得偿所愿', '温柔常伴', '喜乐长安', '暖意融融', '好运连连'];
+  function randomBless() {
+    var open = BLESS_OPEN[Math.floor(Math.random() * BLESS_OPEN.length)];
+    var theme = BLESS_THEME[Math.floor(Math.random() * BLESS_THEME.length)];
+    if (theme === open) theme = BLESS_THEME[(BLESS_THEME.indexOf(theme) + 3) % BLESS_THEME.length];
+    var pool = BLESS_WISH.slice();
+    var wishes = [];
+    for (var i = 0; i < 3; i++) wishes.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+    return open + theme + wishes.join('');
+  }
+
   elName.value = state.n;
   elTitle.value = state.t;
   elSub.value = state.s;
   elSign.value = state.g;
+  var elBless = document.getElementById('fBless');
+  var elBlessCnt = document.getElementById('blessCnt');
+  if (elBless) elBless.value = state.b || '';
+  function blessCount() {
+    if (elBlessCnt && elBless) elBlessCnt.textContent = elBless.value.length + '/20';
+  }
+  blessCount();
   elColor.value = /^#[0-9a-f]{6}$/i.test(state.m) ? state.m : '#e0a84c';
   elBgBase.value = state.b1;
   elBgGlow.value = state.b2;
@@ -540,6 +538,8 @@
   }
 
   function sync() {
+    if (elBless) elBless.value = state.b || '';
+    if (typeof blessCount === 'function') blessCount();
     elName.value = state.n;
     elTitle.value = state.t;
     elSub.value = state.s;
@@ -577,6 +577,26 @@
   elTitle.addEventListener('input', function () { state.t = elTitle.value; later(reload); elLink.value = ''; });
   elSub.addEventListener('input', function () { state.s = elSub.value; later(reload); elLink.value = ''; });
   elSign.addEventListener('input', function () { state.g = elSign.value; later(reload); elLink.value = ''; });
+  if (elBless) {
+    elBless.addEventListener('input', function () {
+      state.b = elBless.value;
+      blessCount();
+      later(reload);
+      elLink.value = '';
+    });
+  }
+  var randBtn = document.getElementById('randBless');
+  if (randBtn) {
+    randBtn.addEventListener('click', function () {
+      var txt = randomBless();
+      state.b = txt;
+      if (elBless) elBless.value = txt;
+      blessCount();
+      reload();
+      elLink.value = '';
+      toast('换了一条祝福');
+    });
+  }
 
   elColor.addEventListener('input', function () {
     state.m = elColor.value;
@@ -612,8 +632,7 @@
 
   function buildLink() {
     var url = new URL('index.html', location.href);
-    var key = photos.length ? getPhotoKey() : '';
-    url.hash = 'c=' + encodeCfg(state) + (key ? '&k=' + key : '');
+    url.hash = 'c=' + encodeCfg(state);
     url.search = '?v=' + Date.now().toString(36);
     return url.href;
   }
@@ -626,9 +645,7 @@
       elLink.setSelectionRange(0, 9999);
     } catch (e) {}
 
-    var done = function () {
-      toast(photos.length ? '链接已复制，含照片的 index.html 也在下载' : '链接已复制，去微信粘贴发送');
-    };
+    var done = function () { toast('链接已复制，去微信粘贴发送'); };
     var fail = function () {
       toast('已生成，请点下面的输入框手动复制');
     };
@@ -638,11 +655,6 @@
       try { document.execCommand('copy'); done(); } catch (e) { fail(); }
     }
 
-    // 有照片时，顺手把含照片的 index.html 也下载下来
-    if (photos.length) {
-      var si = document.getElementById('saveIndex');
-      if (si) setTimeout(function () { si.click(); }, 120);
-    }
   });
 
   document.getElementById('openPreview').addEventListener('click', function () {
@@ -673,218 +685,6 @@
     location.protocol === 'file:'
       ? '本地打开时生成的链接是 file:// 路径，只能自己看；传到 GitHub 后用线上地址打开这个控制台，链接才能发给好友。'
       : '';
-
-  /* ---------- 照片 ---------- */
-  var photos = [];
-  var MAXP = 8;
-  var PKEY = 'xmas-photos-v1';
-  var photoInput = document.getElementById('photoInput');
-  var thumbsEl = document.getElementById('thumbs');
-
-  (function loadPhotos() {
-    var raw = null;
-    try { raw = localStorage.getItem(PKEY); } catch (err) {}
-    if (!raw) return;
-    try { var a = JSON.parse(raw); if (a && a.length) photos = a.slice(0, MAXP); } catch (err) {}
-  })();
-
-  function savePhotosLS() {
-    try { localStorage.setItem(PKEY, JSON.stringify(photos)); } catch (err) {}
-  }
-
-  function renderThumbs() {
-    if (!thumbsEl) return;
-    thumbsEl.innerHTML = '';
-    if (!photos.length) {
-      var d = document.createElement('div');
-      d.className = 'empty';
-      d.textContent = '还没有照片';
-      thumbsEl.appendChild(d);
-      return;
-    }
-    photos.forEach(function (src, i) {
-      var t = document.createElement('div');
-      t.className = 't';
-      var im = document.createElement('img');
-      im.src = src;
-      im.alt = '';
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.textContent = '×';
-      b.addEventListener('click', function (ev) {
-        ev.preventDefault();
-        photos.splice(i, 1);
-        savePhotosLS();
-        renderThumbs();
-        sendPhotos();
-      });
-      t.appendChild(im);
-      t.appendChild(b);
-      thumbsEl.appendChild(t);
-    });
-  }
-
-  function sendPhotos() {
-    try {
-      if (frame && frame.contentWindow) {
-        frame.contentWindow.postMessage({ type: 'xmas-photos', photos: photos }, '*');
-      }
-    } catch (err) {}
-  }
-
-  function readPhoto(file, cb) {
-    var fr = new FileReader();
-    fr.onload = function () {
-      var img = new Image();
-      img.onload = function () {
-        var scale = Math.min(1, 900 / Math.max(img.width, img.height));
-        var cw = Math.max(1, Math.round(img.width * scale));
-        var ch = Math.max(1, Math.round(img.height * scale));
-        var c = document.createElement('canvas');
-        c.width = cw; c.height = ch;
-        c.getContext('2d').drawImage(img, 0, 0, cw, ch);
-        cb(c.toDataURL('image/jpeg', 0.72));
-      };
-      img.onerror = function () { cb(null); };
-      img.src = fr.result;
-    };
-    fr.onerror = function () { cb(null); };
-    fr.readAsDataURL(file);
-  }
-
-  if (photoInput) {
-    photoInput.addEventListener('change', function () {
-      var files = Array.prototype.slice.call(photoInput.files || []).slice(0, MAXP - photos.length);
-      if (!files.length) return;
-      var left = files.length;
-      files.forEach(function (f) {
-        readPhoto(f, function (data) {
-          if (data) photos.push(data);
-          if (--left <= 0) {
-            photos = photos.slice(0, MAXP);
-            savePhotosLS();
-            renderThumbs();
-            sendPhotos();
-          }
-        });
-      });
-      photoInput.value = '';
-    });
-  }
-
-  function bytesToB64url(bytes) {
-    var str = '';
-    for (var i = 0; i < bytes.length; i++) str += String.fromCharCode(bytes[i]);
-    return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  }
-  function b64urlToBytes(str) {
-    var t = String(str).replace(/-/g, '+').replace(/_/g, '/');
-    while (t.length % 4) t += '=';
-    var bin = atob(t);
-    var out = new Uint8Array(bin.length);
-    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
-    return out;
-  }
-  function getPhotoKey() {
-    var k = null;
-    try { k = localStorage.getItem('xmas-key'); } catch (err) {}
-    if (!k) {
-      try {
-        var b = new Uint8Array(32);
-        window.crypto.getRandomValues(b);
-        k = bytesToB64url(b);
-        localStorage.setItem('xmas-key', k);
-      } catch (err) { k = ''; }
-    }
-    return k;
-  }
-
-  var saveIndexBtn = document.getElementById('saveIndex');
-  if (saveIndexBtn) {
-    saveIndexBtn.addEventListener('click', function () {
-      if (!photos.length) { toast('先加几张照片'); return; }
-      var key = getPhotoKey();
-      if (!key || !window.crypto || !window.crypto.subtle) {
-        toast('当前浏览器不支持加密，请用 Chrome/Edge');
-        return;
-      }
-      var data = new TextEncoder().encode(JSON.stringify(photos));
-      var iv = window.crypto.getRandomValues(new Uint8Array(12));
-      window.crypto.subtle.importKey('raw', b64urlToBytes(key), { name: 'AES-GCM' }, false, ['encrypt'])
-        .then(function (k) { return window.crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, k, data); })
-        .then(function (buf) {
-          var enc = JSON.stringify({ v: 1, iv: bytesToB64url(iv), data: bytesToB64url(new Uint8Array(buf)) });
-          return fetch('index.html?t=' + Date.now(), { cache: 'no-store' })
-            .then(function (r) { if (!r.ok) throw new Error('拿不到 index.html'); return r.text(); })
-            .then(function (html) {
-              var tag = '<script src="photos.js" onerror="this.remove()"><\/script>';
-              var inline = '<script>window.PHOTOS_ENC=' + enc + ';<\/script>';
-              if (html.indexOf(tag) < 0) throw new Error('线上 index.html 不是最新版，请先上传一次');
-              var out = html.replace(tag, inline);
-              var blob = new Blob([out], { type: 'text/html;charset=utf-8' });
-              var a = document.createElement('a');
-              a.href = URL.createObjectURL(blob);
-              a.download = 'index.html';
-              document.body.appendChild(a);
-              a.click();
-              setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 800);
-              toast('已下载，覆盖上传这一个文件即可');
-            });
-        })
-        .catch(function (err) { toast('生成失败：' + (err.message || '请用线上地址打开控制台')); });
-    });
-  }
-
-  var saveBtn = document.getElementById('savePhotos');
-  if (saveBtn) {
-    saveBtn.addEventListener('click', function () {
-      if (!photos.length) { toast('先加几张照片'); return; }
-      var key = getPhotoKey();
-      if (!key || !window.crypto || !window.crypto.subtle) {
-        toast('当前浏览器不支持加密，请用 Chrome/Edge 打开');
-        return;
-      }
-      var data = new TextEncoder().encode(JSON.stringify(photos));
-      var iv = window.crypto.getRandomValues(new Uint8Array(12));
-      window.crypto.subtle.importKey('raw', b64urlToBytes(key), { name: 'AES-GCM' }, false, ['encrypt'])
-        .then(function (k) { return window.crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, k, data); })
-        .then(function (buf) {
-          var body = 'window.PHOTOS_ENC=' + JSON.stringify({
-            v: 1,
-            iv: bytesToB64url(iv),
-            data: bytesToB64url(new Uint8Array(buf))
-          }) + ';';
-          var blob = new Blob([body], { type: 'text/javascript' });
-          var a = document.createElement('a');
-          a.href = URL.createObjectURL(blob);
-          a.download = 'photos.js';
-          document.body.appendChild(a);
-          a.click();
-          setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 800);
-          toast('已加密下载，和 index.html 一起上传');
-        })
-        .catch(function () { toast('加密失败，换 Chrome/Edge 再试'); });
-    });
-  }
-
-  var clearBtn = document.getElementById('clearPhotos');
-  if (clearBtn) {
-    clearBtn.addEventListener('click', function () {
-      photos = [];
-      savePhotosLS();
-      renderThumbs();
-      sendPhotos();
-      toast('照片已清空');
-    });
-  }
-
-  if (frame) {
-    frame.addEventListener('load', function () {
-      setTimeout(sendPhotos, 120);
-    });
-  }
-
-  renderThumbs();
 
   (function makeSnow() {
     var box = document.getElementById('snow');
