@@ -269,15 +269,24 @@
   .bless{
     position:fixed; z-index:2; left:50%; top:50%;
     transform:translate(-50%,-50%);
-    width:min(86vw, 360px);
+    width:min(92vw, 380px);
     text-align:center;
-    font-size:clamp(14px, 3.9vw, 18px);
-    line-height:2;
-    letter-spacing:.10em;
+    font-size:clamp(13.5px, 3.68vw, 17px);
+    line-height:1.95;
+    letter-spacing:.05em;
     color:var(--text);
     text-shadow:0 0 12px var(--glow1), 0 0 34px var(--glow2);
     opacity:0; pointer-events:none;
     transition:opacity .3s ease;
+  }
+  .bless .pre{
+    display:inline-block;
+    margin-right:.28em;
+    font-size:1.12em;
+    font-weight:600;
+    color:var(--text);
+    vertical-align:baseline;
+    text-shadow:0 0 14px var(--glow1), 0 0 36px var(--glow2);
   }
   .bless::before, .bless::after{
     content:""; display:block; width:44px; height:1px; margin:14px auto;
@@ -327,7 +336,7 @@
   </div>
 </div>
 
-<div class="bless" id="bless"></div>
+<div class="bless" id="bless"><span class="pre">祝</span><span id="blessText"></span></div>
 
 <div class="scatter" id="scatter">
   <span>散</span>
@@ -1279,7 +1288,8 @@
   var hintEl = document.getElementById('scatterHint');
   var blessEl = document.getElementById('bless');
 
-  if (blessEl) blessEl.textContent = CFG.b || '';
+  var blessTextEl = document.getElementById('blessText');
+  if (blessTextEl) blessTextEl.textContent = CFG.b || '';
 
   function hideScatterHint() {
     if (hintEl) hintEl.className = 'scatter-hint';
