@@ -626,7 +626,9 @@
       elLink.setSelectionRange(0, 9999);
     } catch (e) {}
 
-    var done = function () { toast('链接已复制，去微信粘贴发送'); };
+    var done = function () {
+      toast(photos.length ? '链接已复制，含照片的 index.html 也在下载' : '链接已复制，去微信粘贴发送');
+    };
     var fail = function () {
       toast('已生成，请点下面的输入框手动复制');
     };
@@ -634,6 +636,12 @@
       navigator.clipboard.writeText(link).then(done, fail);
     } else {
       try { document.execCommand('copy'); done(); } catch (e) { fail(); }
+    }
+
+    // 有照片时，顺手把含照片的 index.html 也下载下来
+    if (photos.length) {
+      var si = document.getElementById('saveIndex');
+      if (si) setTimeout(function () { si.click(); }, 120);
     }
   });
 
